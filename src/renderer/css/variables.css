@@ -1,0 +1,198 @@
+/* ==========================================================================
+   poagitText Pro — Design Tokens
+   Default brand theme: "Ember Violet" — deep purple base, crimson-red
+   accent. Every other theme in the gallery overrides these same tokens,
+   so no component ever needs theme-specific CSS of its own.
+   ========================================================================== */
+
+:root {
+  color-scheme: light;
+
+  /* ---- Brand ramp (purple) ---- */
+  --violet-50:  #f5f1ff;
+  --violet-100: #ece3ff;
+  --violet-200: #d9c8ff;
+  --violet-300: #bd9dff;
+  --violet-400: #9c6cff;
+  --violet-500: #7c3aed;
+  --violet-600: #6d28d9;
+  --violet-700: #5b21b6;
+  --violet-800: #4c1d95;
+  --violet-900: #3b1373;
+  --violet-950: #240a4d;
+
+  /* ---- Accent ramp (red/crimson) ---- */
+  --red-50:  #fff1f2;
+  --red-100: #ffe0e3;
+  --red-200: #ffc2c9;
+  --red-300: #ff98a3;
+  --red-400: #fb5a6a;
+  --red-500: #e11d48;
+  --red-600: #c41439;
+  --red-700: #a30f30;
+  --red-800: #870f2b;
+  --red-900: #6f0f27;
+
+  /* ---- Gold — reserved for small highlights only, never large fills ---- */
+  --gold-400: #ffd666;
+  --gold-500: #f5b700;
+
+  /* ---- Semantic brand tokens ---- */
+  --brand-primary: var(--violet-600);
+  --brand-primary-strong: var(--violet-700);
+  --brand-primary-soft: var(--violet-100);
+  --brand-accent: var(--red-500);
+  --brand-accent-strong: var(--red-600);
+  --brand-accent-soft: var(--red-100);
+
+  --gradient-brand: linear-gradient(135deg, var(--violet-600) 0%, var(--red-500) 100%);
+  --gradient-brand-diagonal: linear-gradient(160deg, var(--violet-700) 0%, var(--violet-500) 45%, var(--red-500) 100%);
+  --gradient-brand-soft: linear-gradient(135deg, var(--violet-100) 0%, var(--red-100) 100%);
+  --gradient-titlebar: linear-gradient(90deg, var(--violet-800) 0%, var(--violet-700) 55%, var(--red-700) 100%);
+  --gradient-rail: linear-gradient(180deg, var(--violet-900) 0%, #35123a 100%);
+
+  /* ---- Surfaces ---- */
+  --surface-0: #ffffff;
+  --surface-1: #faf8ff;
+  --surface-2: #f3edff;
+  --surface-3: #ece3fb;
+  --surface-rail: var(--violet-950);
+  --surface-overlay: rgba(36, 10, 77, 0.55);
+
+  /* ---- Text ---- */
+  --text-primary: #201436;
+  --text-secondary: #5b5170;
+  --text-muted: #8a80a0;
+  --text-on-brand: #ffffff;
+  --text-link: var(--violet-600);
+
+  /* ---- Borders / dividers ---- */
+  --border-subtle: #e6ddf9;
+  --border-default: #d8caf3;
+  --border-strong: var(--violet-300);
+
+  /* ---- Feedback colors ---- */
+  --success: #16a34a;
+  --success-soft: #dcfce7;
+  --warning: #d97706;
+  --warning-soft: #fef3c7;
+  --danger: #dc2626;
+  --danger-soft: #fee2e2;
+  --info: var(--violet-500);
+  --info-soft: var(--violet-100);
+
+  /* ---- Elevation ---- */
+  --shadow-xs: 0 1px 2px rgba(76, 29, 149, 0.06);
+  --shadow-sm: 0 2px 6px rgba(76, 29, 149, 0.10), 0 1px 2px rgba(76, 29, 149, 0.06);
+  --shadow-md: 0 8px 24px rgba(76, 29, 149, 0.14), 0 2px 6px rgba(76, 29, 149, 0.08);
+  --shadow-lg: 0 20px 48px rgba(59, 19, 115, 0.22), 0 6px 16px rgba(59, 19, 115, 0.10);
+  --shadow-glow-brand: 0 0 0 1px rgba(124, 58, 237, 0.16), 0 8px 30px rgba(124, 58, 237, 0.22);
+  --shadow-glow-accent: 0 0 0 1px rgba(225, 29, 72, 0.14), 0 8px 30px rgba(225, 29, 72, 0.18);
+
+  /* ---- Radius scale ---- */
+  --radius-xs: 4px;
+  --radius-sm: 6px;
+  --radius-md: 10px;
+  --radius-lg: 14px;
+  --radius-xl: 20px;
+  --radius-full: 999px;
+
+  /* ---- Spacing scale ---- */
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-5: 20px;
+  --space-6: 24px;
+  --space-8: 32px;
+  --space-10: 40px;
+
+  /* ---- Layout ---- */
+  --titlebar-height: 44px;
+  --statusbar-height: 30px;
+  --rail-width: 56px;
+  --sidebar-width: 280px;
+  --toolbar-height: 52px;
+
+  /* ---- Typography ---- */
+  --font-ui: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  --font-editor: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+  --font-mono: 'JetBrains Mono', 'Fira Code', 'Cascadia Code', ui-monospace, monospace;
+
+  /* ---- Motion ---- */
+  --ease-standard: cubic-bezier(0.2, 0.7, 0.2, 1);
+  --ease-spring: cubic-bezier(0.34, 1.56, 0.64, 1);
+  --duration-fast: 120ms;
+  --duration-base: 200ms;
+  --duration-slow: 340ms;
+  --motion-scale: 1; /* set to 0 by Performance Mode → collapses all durations */
+
+  /* ---- Collaboration cursor colors (kept from the original palette) ---- */
+  --collab-1: #3b82f6;
+  --collab-2: #10b981;
+  --collab-3: #f59e0b;
+  --collab-4: #ef4444;
+  --collab-5: #8b5cf6;
+  --collab-6: #ec4899;
+
+  /* ---- Editor page (Document Mode) ---- */
+  --page-bg: #ffffff;
+  --page-shadow: 0 12px 40px rgba(59, 19, 115, 0.18);
+  --page-margin-guide: rgba(124, 58, 237, 0.18);
+
+  /* ---- Current runtime selections (set by JS) ---- */
+  --current-font: var(--font-editor);
+}
+
+/* ==========================================================================
+   Dark variant of the default brand theme ("Ember Violet — Midnight")
+   ========================================================================== */
+[data-theme='poagit-classic'][data-mode='dark'],
+[data-theme='midnight'] {
+  color-scheme: dark;
+
+  --surface-0: #150c26;
+  --surface-1: #1b1030;
+  --surface-2: #24163d;
+  --surface-3: #2d1c4a;
+  --surface-rail: #0f0820;
+  --surface-overlay: rgba(9, 4, 20, 0.65);
+
+  --text-primary: #f3eeff;
+  --text-secondary: #c3b7e0;
+  --text-muted: #8e81ad;
+  --text-link: var(--violet-300);
+
+  --border-subtle: #2c2049;
+  --border-default: #3a2c5c;
+  --border-strong: #543d80;
+
+  --page-bg: #1b1030;
+  --page-shadow: 0 12px 44px rgba(0, 0, 0, 0.5);
+  --page-margin-guide: rgba(189, 157, 255, 0.22);
+
+  --shadow-sm: 0 2px 6px rgba(0, 0, 0, 0.35);
+  --shadow-md: 0 8px 24px rgba(0, 0, 0, 0.4);
+  --shadow-lg: 0 20px 54px rgba(0, 0, 0, 0.55);
+
+  --brand-primary-soft: rgba(124, 58, 237, 0.18);
+  --brand-accent-soft: rgba(225, 29, 72, 0.18);
+  --success-soft: rgba(22, 163, 74, 0.18);
+  --warning-soft: rgba(217, 119, 6, 0.18);
+  --danger-soft: rgba(220, 38, 38, 0.18);
+  --info-soft: rgba(124, 58, 237, 0.18);
+}
+
+/* Reduced-motion / Performance Mode collapses every animation & blur. */
+[data-performance='low'] {
+  --motion-scale: 0;
+}
+[data-performance='low'] .backdrop-blur,
+[data-performance='low'] .glass {
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  :root { --motion-scale: 0; }
+}
