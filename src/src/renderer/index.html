@@ -1,0 +1,591 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; img-src 'self' data: blob:; font-src 'self' data: https://fonts.gstatic.com; script-src 'self'; connect-src 'none';" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>poagitText Pro (development build)</title>
+<link rel="stylesheet" href="assets/fontawesome/css/all.min.css" />
+<link rel="stylesheet" href="css/fonts.css" />
+<link rel="stylesheet" href="css/variables.css" />
+<link rel="stylesheet" href="css/base.css" />
+<link rel="stylesheet" href="css/layout.css" />
+<link rel="stylesheet" href="css/components.css" />
+<link rel="stylesheet" href="css/editor.css" />
+<link rel="stylesheet" href="css/modals.css" />
+</head>
+<body data-theme="poagit-classic" data-mode="light">
+
+<div id="app">
+
+  <!-- ==================================================================
+       TITLEBAR
+       ================================================================== -->
+  <header id="titlebar" class="drag-region">
+    <div class="brand drag-region">
+      <img src="assets/icons/app-icon.png" alt="" />
+      <span>poagitText Pro</span>
+    </div>
+
+    <nav id="tabStrip" role="tablist" aria-label="Open documents"></nav>
+
+    <button id="newTabBtn" class="no-drag" data-tip="New document (Ctrl+N)" data-action="new-file">
+      <i class="fa-solid fa-plus"></i>
+    </button>
+
+    <div id="windowControls">
+      <button class="no-drag" data-action="win-minimize" data-tip="Minimize"><i class="fa-regular fa-window-minimize"></i></button>
+      <button class="no-drag" data-action="win-maximize" data-tip="Maximize"><i class="fa-regular fa-square"></i></button>
+      <button class="no-drag win-close" data-action="win-close" data-tip="Close"><i class="fa-solid fa-xmark"></i></button>
+    </div>
+  </header>
+
+  <!-- ==================================================================
+       MAIN ROW
+       ================================================================== -->
+  <div id="mainRow">
+
+    <!-- ---- Activity rail ---- -->
+    <nav id="activityRail" aria-label="Panels">
+      <button class="rail-btn active" data-panel="explorer" data-tip="Explorer"><i class="fa-regular fa-folder-open"></i></button>
+      <button class="rail-btn" data-panel="outline" data-tip="Outline"><i class="fa-solid fa-list-ul"></i></button>
+      <button class="rail-btn" data-panel="stats" data-tip="Statistics"><i class="fa-solid fa-chart-simple"></i></button>
+      <button class="rail-btn" data-panel="tools" data-tip="Tools & Modules"><i class="fa-solid fa-toolbox"></i></button>
+      <button class="rail-btn" data-panel="brainstorm" data-tip="Brainstorm Assistant"><i class="fa-solid fa-wand-magic-sparkles"></i></button>
+      <button class="rail-btn" data-panel="cloud" data-tip="Cloud, Sync & Collaboration"><i class="fa-solid fa-cloud"></i></button>
+      <div class="rail-spacer"></div>
+      <button class="rail-btn" data-action="open-command-palette" data-tip="Command Palette (Ctrl+K)"><i class="fa-solid fa-terminal"></i></button>
+      <button class="rail-btn" data-action="open-settings" data-tip="Settings"><i class="fa-solid fa-gear"></i></button>
+    </nav>
+
+    <!-- ---- Sidebar ---- -->
+    <aside id="sidebar">
+      <div class="sidebar-header">
+        <h3 id="sidebarTitle">Explorer</h3>
+        <button class="tbtn btn-sm" data-action="toggle-sidebar" data-tip="Collapse (Ctrl+B)"><i class="fa-solid fa-angles-left"></i></button>
+      </div>
+      <div class="sidebar-body">
+
+        <!-- Explorer panel -->
+        <section class="sidebar-panel active" data-panel-content="explorer">
+          <div class="panel-section" style="padding-top:4px;">
+            <div style="display:flex; gap:6px;">
+              <button class="btn btn-primary btn-sm" style="flex:1;" data-action="new-file"><i class="fa-solid fa-file-circle-plus"></i> New</button>
+              <button class="btn btn-secondary btn-sm" style="flex:1;" data-action="open-file"><i class="fa-solid fa-folder-open"></i> Open</button>
+            </div>
+          </div>
+          <div class="panel-section">
+            <h4>Open Documents</h4>
+            <div id="explorerTabList"></div>
+          </div>
+          <div class="panel-section">
+            <h4>Recent Files</h4>
+            <div id="recentFilesList"></div>
+          </div>
+        </section>
+
+        <!-- Outline panel -->
+        <section class="sidebar-panel" data-panel-content="outline">
+          <div class="panel-section" style="padding-top:4px;">
+            <div id="outlineList"></div>
+          </div>
+        </section>
+
+        <!-- Stats panel -->
+        <section class="sidebar-panel" data-panel-content="stats">
+          <div class="stats-grid" style="padding-top:12px;">
+            <div class="stat-card"><div class="stat-value" id="statWords">0</div><div class="stat-label">Words</div></div>
+            <div class="stat-card"><div class="stat-value" id="statChars">0</div><div class="stat-label">Characters</div></div>
+            <div class="stat-card"><div class="stat-value" id="statSentences">0</div><div class="stat-label">Sentences</div></div>
+            <div class="stat-card"><div class="stat-value" id="statParagraphs">0</div><div class="stat-label">Paragraphs</div></div>
+            <div class="stat-card"><div class="stat-value" id="statReadTime">0m</div><div class="stat-label">Read Time</div></div>
+            <div class="stat-card"><div class="stat-value" id="statUniqueWords">0</div><div class="stat-label">Unique Words</div></div>
+          </div>
+          <div class="panel-section">
+            <h4>Most Frequent Words</h4>
+            <div id="freqWordsList"></div>
+          </div>
+        </section>
+
+        <!-- Tools panel -->
+        <section class="sidebar-panel" data-panel-content="tools">
+          <div class="panel-section" style="padding-top:4px;">
+            <h4>Utility Modules</h4>
+            <div class="list-row" data-action="open-tool" data-tool="base64"><div class="list-icon"><i class="fa-solid fa-code"></i></div><div class="list-main"><div class="list-title">Base64 Encode / Decode</div></div></div>
+            <div class="list-row" data-action="open-tool" data-tool="case"><div class="list-icon"><i class="fa-solid fa-font"></i></div><div class="list-main"><div class="list-title">Case Converter</div></div></div>
+            <div class="list-row" data-action="open-tool" data-tool="sort-lines"><div class="list-icon"><i class="fa-solid fa-arrow-down-a-z"></i></div><div class="list-main"><div class="list-title">Sort Lines</div></div></div>
+            <div class="list-row" data-action="open-tool" data-tool="reverse-lines"><div class="list-icon"><i class="fa-solid fa-arrow-down-short-wide"></i></div><div class="list-main"><div class="list-title">Reverse Lines</div></div></div>
+            <div class="list-row" data-action="open-tool" data-tool="trim-spaces"><div class="list-icon"><i class="fa-solid fa-broom"></i></div><div class="list-main"><div class="list-title">Remove Extra Spaces</div></div></div>
+            <div class="list-row" data-action="open-tool" data-tool="qr"><div class="list-icon"><i class="fa-solid fa-qrcode"></i></div><div class="list-main"><div class="list-title">QR Code Generator</div></div></div>
+          </div>
+          <div class="panel-section">
+            <h4>Insert</h4>
+            <div class="list-row" data-action="insert-image"><div class="list-icon"><i class="fa-regular fa-image"></i></div><div class="list-main"><div class="list-title">Image…</div></div></div>
+            <div class="list-row" data-action="open-font-picker"><div class="list-icon"><i class="fa-solid fa-swatchbook"></i></div><div class="list-main"><div class="list-title">Font Gallery…</div></div></div>
+          </div>
+        </section>
+
+        <!-- Brainstorm panel -->
+        <section class="sidebar-panel" data-panel-content="brainstorm" style="height:100%;">
+          <div id="brainstormPanel">
+            <div class="brainstorm-mode-switch">
+              <div class="segmented">
+                <button class="active" data-bs-mode="story">Story Ideas</button>
+                <button data-bs-mode="writer">Writer Mode</button>
+              </div>
+            </div>
+            <div class="brainstorm-messages" id="brainstormMessages">
+              <div class="empty-state">
+                <i class="fa-solid fa-wand-magic-sparkles"></i>
+                <p><strong>Story Ideas</strong> gives you concepts and direction without writing your prose for you. Switch to <strong>Writer Mode</strong> when you want direct drafting help.</p>
+              </div>
+            </div>
+            <div class="brainstorm-input-row">
+              <textarea id="brainstormInput" class="field" rows="1" placeholder="Ask Brainstorm…"></textarea>
+              <button class="btn btn-primary btn-icon" id="brainstormSend" data-tip="Send"><i class="fa-solid fa-paper-plane"></i></button>
+            </div>
+          </div>
+        </section>
+
+        <!-- Cloud panel -->
+        <section class="sidebar-panel" data-panel-content="cloud">
+          <div class="panel-section" style="padding-top:4px;">
+            <h4>poagitSync</h4>
+            <div id="syncStatusArea">
+              <p class="text-muted" style="font-size:11.5px; margin: 0 0 10px;">Sign in to back up documents and sync across devices.</p>
+              <button class="btn btn-primary btn-sm" style="width:100%;" data-action="open-sync"><i class="fa-solid fa-right-to-bracket"></i> Sign In / Register</button>
+            </div>
+          </div>
+          <div class="panel-section">
+            <h4>Live Collaboration</h4>
+            <button class="btn btn-secondary btn-sm" style="width:100%;" data-action="open-collab"><i class="fa-solid fa-people-arrows"></i> Start or Join a Room</button>
+          </div>
+          <div class="panel-section">
+            <h4>Share</h4>
+            <button class="btn btn-secondary btn-sm" style="width:100%;" data-action="open-share"><i class="fa-solid fa-share-nodes"></i> Share to Feed</button>
+          </div>
+        </section>
+
+      </div>
+    </aside>
+
+    <!-- ---- Editor column ---- -->
+    <main id="editorColumn">
+
+      <!-- Toolbar -->
+      <div id="toolbar">
+        <div class="toolbar-group">
+          <button class="tbtn" data-action="save-file" data-tip="Save (Ctrl+S)"><i class="fa-regular fa-floppy-disk"></i></button>
+          <button class="tbtn" data-action="undo" data-tip="Undo (Ctrl+Z)"><i class="fa-solid fa-rotate-left"></i></button>
+          <button class="tbtn" data-action="redo" data-tip="Redo (Ctrl+Y)"><i class="fa-solid fa-rotate-right"></i></button>
+        </div>
+
+        <div class="toolbar-group">
+          <div class="dropdown">
+            <button class="tbtn tbtn-wide" data-dropdown="blockFormatMenu" data-tip="Paragraph style"><span id="blockFormatLabel">Paragraph</span><i class="fa-solid fa-chevron-down tbtn-caret"></i></button>
+            <div class="dropdown-menu" id="blockFormatMenu">
+              <div class="dropdown-item" data-format="paragraph">Paragraph</div>
+              <div class="dropdown-item" data-format="h1">Heading 1</div>
+              <div class="dropdown-item" data-format="h2">Heading 2</div>
+              <div class="dropdown-item" data-format="h3">Heading 3</div>
+              <div class="dropdown-item" data-format="quote">Block Quote</div>
+            </div>
+          </div>
+          <div class="dropdown">
+            <button class="tbtn tbtn-wide" data-dropdown="fontFamilyMenu" data-tip="Font" id="fontFamilyBtn"><span id="fontFamilyLabel">Inter</span><i class="fa-solid fa-chevron-down tbtn-caret"></i></button>
+            <div class="dropdown-menu" id="fontFamilyMenu"></div>
+          </div>
+        </div>
+
+        <div class="toolbar-group">
+          <button class="tbtn" data-format="bold" data-tip="Bold (Ctrl+B)"><i class="fa-solid fa-bold"></i></button>
+          <button class="tbtn" data-format="italic" data-tip="Italic (Ctrl+I)"><i class="fa-solid fa-italic"></i></button>
+          <button class="tbtn" data-format="underline" data-tip="Underline (Ctrl+U)"><i class="fa-solid fa-underline"></i></button>
+          <button class="tbtn" data-format="strikethrough" data-tip="Strikethrough"><i class="fa-solid fa-strikethrough"></i></button>
+          <div class="dropdown">
+            <button class="tbtn" data-dropdown="textColorMenu" data-tip="Text color"><i class="fa-solid fa-palette"></i></button>
+            <div class="dropdown-menu" id="textColorMenu"><div class="swatch-grid" data-color-target="text"></div></div>
+          </div>
+          <div class="dropdown">
+            <button class="tbtn" data-dropdown="highlightMenu" data-tip="Highlight"><i class="fa-solid fa-highlighter"></i></button>
+            <div class="dropdown-menu" id="highlightMenu"><div class="swatch-grid" data-color-target="highlight"></div></div>
+          </div>
+        </div>
+
+        <div class="toolbar-group">
+          <button class="tbtn" data-format="ul" data-tip="Bullet list"><i class="fa-solid fa-list-ul"></i></button>
+          <button class="tbtn" data-format="ol" data-tip="Numbered list"><i class="fa-solid fa-list-ol"></i></button>
+          <button class="tbtn" data-format="outdent" data-tip="Decrease indent"><i class="fa-solid fa-outdent"></i></button>
+          <button class="tbtn" data-format="indent" data-tip="Increase indent"><i class="fa-solid fa-indent"></i></button>
+        </div>
+
+        <div class="toolbar-group">
+          <button class="tbtn" data-format="align-left" data-tip="Align left"><i class="fa-solid fa-align-left"></i></button>
+          <button class="tbtn" data-format="align-center" data-tip="Align center"><i class="fa-solid fa-align-center"></i></button>
+          <button class="tbtn" data-format="align-right" data-tip="Align right"><i class="fa-solid fa-align-right"></i></button>
+        </div>
+
+        <div class="toolbar-group">
+          <button class="tbtn" data-action="insert-link" data-tip="Insert link"><i class="fa-solid fa-link"></i></button>
+          <button class="tbtn" data-action="insert-image" data-tip="Insert image"><i class="fa-regular fa-image"></i></button>
+          <button class="tbtn" data-format="hr" data-tip="Horizontal rule"><i class="fa-solid fa-minus"></i></button>
+        </div>
+
+        <div class="toolbar-group" style="border-right:none; margin-left:auto;">
+          <div class="segmented" id="editorModeSwitch" style="width:190px;">
+            <button class="active" data-editor-mode="rich"><i class="fa-solid fa-pen-nib"></i> Rich</button>
+            <button data-editor-mode="plain"><i class="fa-solid fa-terminal"></i> Plain</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Editor surfaces -->
+      <div id="editorScroll">
+        <div id="editorGutter"></div>
+        <div class="editor-mode-pane active" data-mode-pane="rich">
+          <div id="richEditor" contenteditable="true" spellcheck="true" data-placeholder="Start writing…"></div>
+        </div>
+        <div class="editor-mode-pane" data-mode-pane="plain">
+          <div id="plainEditor" contenteditable="true" spellcheck="true" data-placeholder="Start writing…"></div>
+        </div>
+        <div id="floatingFormatBar">
+          <button class="tbtn" data-format="bold"><i class="fa-solid fa-bold"></i></button>
+          <button class="tbtn" data-format="italic"><i class="fa-solid fa-italic"></i></button>
+          <button class="tbtn" data-format="underline"><i class="fa-solid fa-underline"></i></button>
+          <button class="tbtn" data-action="ask-brainstorm-selection"><i class="fa-solid fa-wand-magic-sparkles"></i></button>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <!-- ==================================================================
+       STATUS BAR
+       ================================================================== -->
+  <footer id="statusbar">
+    <div class="status-item clickable" id="statusWordCount" data-panel="stats">0 words</div>
+    <div class="status-item" id="statusCaretPos">Ln 1, Col 1</div>
+    <div class="status-item clickable" id="statusLang" data-tip="Spellcheck language">EN-US</div>
+    <div class="status-spacer"></div>
+    <div class="status-item clickable" id="statusFocusMode" data-action="toggle-focus-mode"><i class="fa-regular fa-eye"></i> Focus</div>
+    <div class="status-item clickable" data-action="zoom-out"><i class="fa-solid fa-magnifying-glass-minus"></i></div>
+    <div class="status-item" id="statusZoom">100%</div>
+    <div class="status-item clickable" data-action="zoom-in"><i class="fa-solid fa-magnifying-glass-plus"></i></div>
+    <div class="status-item clickable" data-action="open-theme-picker"><span class="status-swatch"></span> Theme</div>
+    <div class="status-item clickable" id="statusSaveState"><i class="fa-solid fa-circle-check"></i> Saved</div>
+  </footer>
+</div>
+
+<!-- ======================================================================
+     TOASTS / CONTEXT MENU
+     ====================================================================== -->
+<div id="toastStack" aria-live="polite"></div>
+<div id="contextMenu"></div>
+
+<!-- ======================================================================
+     COMMAND PALETTE
+     ====================================================================== -->
+<div class="overlay" id="commandPaletteOverlay">
+  <div class="command-palette">
+    <div class="command-search">
+      <i class="fa-solid fa-terminal"></i>
+      <input type="text" id="commandInput" placeholder="Type a command or search…" autocomplete="off" />
+      <kbd class="text-muted" style="font-size:11px;">Esc</kbd>
+    </div>
+    <div class="command-list" id="commandList"></div>
+  </div>
+</div>
+
+<!-- ======================================================================
+     FIND & REPLACE
+     ====================================================================== -->
+<div class="overlay" id="findReplaceOverlay">
+  <div class="modal">
+    <div class="modal-header">
+      <div class="modal-icon"><i class="fa-solid fa-magnifying-glass"></i></div>
+      <div><h2>Find &amp; Replace</h2><p>Ctrl+F to find, Ctrl+H to replace</p></div>
+      <button class="modal-close" data-close-overlay><i class="fa-solid fa-xmark"></i></button>
+    </div>
+    <div class="modal-body">
+      <label class="field-label">Find</label>
+      <input type="text" class="field" id="findInput" placeholder="Search for…" />
+      <div id="replaceSection">
+        <div style="height:12px;"></div>
+        <label class="field-label">Replace with</label>
+        <input type="text" class="field" id="replaceInput" placeholder="Replace with…" />
+      </div>
+      <div style="display:flex; gap:16px; margin-top:14px;">
+        <label style="display:flex; align-items:center; gap:6px; font-size:12px;"><input type="checkbox" id="findCaseSensitive" /> Case sensitive</label>
+        <label style="display:flex; align-items:center; gap:6px; font-size:12px;"><input type="checkbox" id="findWholeWord" /> Whole word</label>
+      </div>
+      <p id="findResultCount" class="text-muted" style="font-size:11.5px; margin-top:10px;"></p>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-secondary btn-sm" id="findPrevBtn"><i class="fa-solid fa-chevron-up"></i> Previous</button>
+      <button class="btn btn-secondary btn-sm" id="findNextBtn"><i class="fa-solid fa-chevron-down"></i> Next</button>
+      <button class="btn btn-secondary btn-sm" id="replaceOneBtn">Replace</button>
+      <button class="btn btn-primary btn-sm" id="replaceAllBtn">Replace All</button>
+    </div>
+  </div>
+</div>
+
+<!-- ======================================================================
+     SETTINGS
+     ====================================================================== -->
+<div class="overlay" id="settingsOverlay">
+  <div class="modal modal-lg" style="height:min(640px, calc(100vh - 64px));">
+    <div class="modal-header">
+      <div class="modal-icon"><i class="fa-solid fa-gear"></i></div>
+      <div><h2>Settings</h2><p>Preferences are saved automatically</p></div>
+      <button class="modal-close" data-close-overlay><i class="fa-solid fa-xmark"></i></button>
+    </div>
+    <div class="modal-body no-pad" style="flex:1; min-height:0;">
+      <div class="settings-layout">
+        <div class="settings-nav">
+          <div class="settings-nav-item active" data-settings-pane="general"><i class="fa-solid fa-sliders"></i> General</div>
+          <div class="settings-nav-item" data-settings-pane="appearance"><i class="fa-solid fa-palette"></i> Appearance</div>
+          <div class="settings-nav-item" data-settings-pane="editor"><i class="fa-solid fa-pen"></i> Editor</div>
+          <div class="settings-nav-item" data-settings-pane="updates"><i class="fa-solid fa-arrows-rotate"></i> Updates</div>
+          <div class="settings-nav-item" data-settings-pane="about"><i class="fa-solid fa-circle-info"></i> About</div>
+        </div>
+        <div style="overflow-y:auto;">
+          <div class="settings-pane active" data-settings-content="general">
+            <div class="settings-row"><div><div class="row-label">Check for updates automatically</div><div class="row-desc">Quietly checks on launch; downloading and installing always require your confirmation.</div></div><label class="switch"><input type="checkbox" id="setAutoUpdate" checked/><span class="track"><span class="thumb"></span></span></label></div>
+            <div class="settings-row"><div><div class="row-label">Confirm before closing unsaved documents</div></div><label class="switch"><input type="checkbox" id="setCloseGuard" checked/><span class="track"><span class="thumb"></span></span></label></div>
+            <div class="settings-row"><div><div class="row-label">Performance Mode</div><div class="row-desc">Disables animations and blur effects for low-powered or older machines.</div></div><label class="switch"><input type="checkbox" id="setPerformanceMode"/><span class="track"><span class="thumb"></span></span></label></div>
+          </div>
+          <div class="settings-pane" data-settings-content="appearance">
+            <div class="settings-row"><div class="row-label">Theme</div><button class="btn btn-secondary btn-sm" data-action="open-theme-picker">Browse Gallery…</button></div>
+            <div class="settings-row"><div class="row-label">Match system light/dark</div><label class="switch"><input type="checkbox" id="setMatchSystem"/><span class="track"><span class="thumb"></span></span></label></div>
+            <div class="settings-row"><div class="row-label">Caret style</div>
+              <div class="segmented" style="width:180px;"><button class="active" data-caret-style="gradient">Gradient</button><button data-caret-style="solid">Solid</button></div>
+            </div>
+          </div>
+          <div class="settings-pane" data-settings-content="editor">
+            <div class="settings-row"><div class="row-label">Show line numbers (Plain mode)</div><label class="switch"><input type="checkbox" id="setLineNumbers"/><span class="track"><span class="thumb"></span></span></label></div>
+            <div class="settings-row"><div class="row-label">Document layout</div>
+              <div class="segmented" style="width:190px;"><button class="active" data-editor-layout="flow">Free-flow</button><button data-editor-layout="pages">Pages</button></div>
+            </div>
+            <div class="settings-row"><div class="row-label">Show page margin guides</div><label class="switch"><input type="checkbox" id="setMarginGuides"/><span class="track"><span class="thumb"></span></span></label></div>
+          </div>
+          <div class="settings-pane" data-settings-content="updates">
+            <div id="updateStatusArea" style="padding: 10px 0;">
+              <p class="text-muted" style="font-size:12.5px;">poagitText Pro v<span id="appVersionLabel">Celebensis</span></p>
+              <button class="btn btn-primary btn-sm" data-action="check-for-updates">Check for Updates</button>
+              <div id="updateProgressArea" style="margin-top:14px; display:none;">
+                <div class="progress-track"><div class="progress-fill" id="updateProgressFill" style="width:0%;"></div></div>
+                <p id="updateProgressLabel" class="text-muted" style="font-size:11.5px; margin-top:6px;"></p>
+              </div>
+            </div>
+          </div>
+          <div class="settings-pane" data-settings-content="about">
+            <div style="text-align:center; padding: 20px 0;">
+              <img src="assets/icons/app-icon.png" style="width:64px; height:64px; border-radius:16px; margin:0 auto 14px;" />
+              <h2 style="margin:0 0 4px;">poagitText Pro</h2>
+              <p class="text-muted" style="font-size:12.5px; margin:0 0 14px;">Version <span id="appVersionLabel2">Celebensis</span></p>
+              <p class="text-muted" style="font-size:11.5px; max-width:360px; margin: 0 auto;">Your customizable pro text editor.</p>
+              <div style="margin-top:16px; display:flex; gap:8px; justify-content:center;">
+                <button class="btn btn-secondary btn-sm" data-action="open-external" data-url="https://github.com/RitPigDev/poagittext">GitHub</button>
+                <button class="btn btn-secondary btn-sm" data-action="open-shortcuts">Keyboard Shortcuts</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ======================================================================
+     THEME GALLERY
+     ====================================================================== -->
+<div class="overlay" id="themePickerOverlay">
+  <div class="modal modal-lg">
+    <div class="modal-header">
+      <div class="modal-icon"><i class="fa-solid fa-palette"></i></div>
+      <div><h2>Theme Gallery</h2><p>Purple &amp; Red is the poagitText Pro default</p></div>
+      <button class="modal-close" data-close-overlay><i class="fa-solid fa-xmark"></i></button>
+    </div>
+    <div class="modal-body">
+      <div class="theme-grid" id="themeGrid"></div>
+      <div class="panel-section">
+        <h4>Custom Theme</h4>
+        <div style="display:flex; gap:14px; align-items:center;">
+          <div><label class="field-label">Primary</label><input type="color" id="customPrimaryColor" value="#7c3aed" /></div>
+          <div><label class="field-label">Accent</label><input type="color" id="customAccentColor" value="#e11d48" /></div>
+          <button class="btn btn-primary btn-sm" id="applyCustomThemeBtn" style="align-self:flex-end;">Apply Custom Theme</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ======================================================================
+     FONT GALLERY
+     ====================================================================== -->
+<div class="overlay" id="fontPickerOverlay">
+  <div class="modal modal-lg">
+    <div class="modal-header">
+      <div class="modal-icon"><i class="fa-solid fa-swatchbook"></i></div>
+      <div><h2>Font Gallery</h2><p>Bundled fonts work fully offline; more load on demand when online</p></div>
+      <button class="modal-close" data-close-overlay><i class="fa-solid fa-xmark"></i></button>
+    </div>
+    <div class="modal-body">
+      <div class="search-field" style="margin-bottom:14px;">
+        <i class="fa-solid fa-magnifying-glass"></i>
+        <input type="text" class="field" id="fontSearchInput" placeholder="Search fonts…" />
+      </div>
+      <div class="font-grid" id="fontGrid"></div>
+      <div class="panel-section">
+        <button class="btn btn-secondary btn-sm" data-action="upload-custom-font"><i class="fa-solid fa-upload"></i> Upload Custom Font File…</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ======================================================================
+     GENERIC TOOL MODAL (Base64 / Case / Sort / Reverse / Trim / QR)
+     ====================================================================== -->
+<div class="overlay" id="toolOverlay">
+  <div class="modal modal-lg">
+    <div class="modal-header">
+      <div class="modal-icon"><i class="fa-solid fa-toolbox" id="toolModalIcon"></i></div>
+      <div><h2 id="toolModalTitle">Tool</h2><p id="toolModalSub"></p></div>
+      <button class="modal-close" data-close-overlay><i class="fa-solid fa-xmark"></i></button>
+    </div>
+    <div class="modal-body" id="toolModalBody"></div>
+    <div class="modal-footer" id="toolModalFooter"></div>
+  </div>
+</div>
+
+<!-- ======================================================================
+     poagitSYNC (Cloud login / backups)
+     ====================================================================== -->
+<div class="overlay" id="syncOverlay">
+  <div class="modal">
+    <div class="modal-header">
+      <div class="modal-icon"><i class="fa-solid fa-cloud"></i></div>
+      <div><h2>poagitSync</h2><p>Cloud backup &amp; multi-device sync</p></div>
+      <button class="modal-close" data-close-overlay><i class="fa-solid fa-xmark"></i></button>
+    </div>
+    <div class="modal-body" id="syncModalBody">
+      <div class="segmented" style="margin-bottom:16px;">
+        <button class="active" data-sync-tab="login">Sign In</button>
+        <button data-sync-tab="register">Register</button>
+      </div>
+      <div id="syncLoginForm">
+        <label class="field-label">Email</label>
+        <input type="email" class="field" id="syncLoginEmail" style="margin-bottom:12px;" />
+        <label class="field-label">Password</label>
+        <input type="password" class="field" id="syncLoginPassword" />
+      </div>
+      <div id="syncRegisterForm" style="display:none;">
+        <label class="field-label">Display Name</label>
+        <input type="text" class="field" id="syncRegName" style="margin-bottom:12px;" />
+        <label class="field-label">Email</label>
+        <input type="email" class="field" id="syncRegEmail" style="margin-bottom:12px;" />
+        <label class="field-label">Password</label>
+        <input type="password" class="field" id="syncRegPassword" />
+      </div>
+      <p id="syncFormError" class="text-muted" style="font-size:11.5px; color:var(--danger); margin-top:10px; display:none;"></p>
+    </div>
+    <div class="modal-footer">
+      <span class="footer-note">Backed by your poagitSync account</span>
+      <button class="btn btn-primary btn-sm" id="syncSubmitBtn">Sign In</button>
+    </div>
+  </div>
+</div>
+
+<!-- ======================================================================
+     COLLABORATION
+     ====================================================================== -->
+<div class="overlay" id="collabOverlay">
+  <div class="modal">
+    <div class="modal-header">
+      <div class="modal-icon"><i class="fa-solid fa-people-arrows"></i></div>
+      <div><h2>Live Collaboration</h2><p>Write together in real time</p></div>
+      <button class="modal-close" data-close-overlay><i class="fa-solid fa-xmark"></i></button>
+    </div>
+    <div class="modal-body">
+      <div id="collabIdleState">
+        <button class="btn btn-primary" style="width:100%; margin-bottom:10px;" id="collabCreateBtn"><i class="fa-solid fa-plus"></i> Create a Room</button>
+        <div style="display:flex; gap:8px;">
+          <input type="text" class="field" id="collabRoomCodeInput" placeholder="Enter room code…" />
+          <button class="btn btn-secondary" id="collabJoinBtn">Join</button>
+        </div>
+      </div>
+      <div id="collabActiveState" style="display:none; text-align:center;">
+        <p class="text-muted" style="font-size:12px;">Room code — share with collaborators</p>
+        <h2 id="collabRoomCodeLabel" class="mono" style="letter-spacing:0.1em;">------</h2>
+        <div id="collabParticipants" style="display:flex; gap:6px; justify-content:center; margin:10px 0;"></div>
+        <button class="btn btn-danger btn-sm" id="collabLeaveBtn">Leave Room</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ======================================================================
+     SHARE
+     ====================================================================== -->
+<div class="overlay" id="shareOverlay">
+  <div class="modal">
+    <div class="modal-header">
+      <div class="modal-icon"><i class="fa-solid fa-share-nodes"></i></div>
+      <div><h2>Share to Feed</h2><p>Post a snippet of your writing publicly</p></div>
+      <button class="modal-close" data-close-overlay><i class="fa-solid fa-xmark"></i></button>
+    </div>
+    <div class="modal-body">
+      <label class="field-label">Title</label>
+      <input type="text" class="field" id="shareTitleInput" style="margin-bottom:12px;" />
+      <label class="field-label">Excerpt</label>
+      <textarea class="field" id="shareExcerptInput" rows="6"></textarea>
+      <p class="text-muted" style="font-size:11px; margin-top:8px;">Sign in to poagitSync to share under your name.</p>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-primary btn-sm" id="sharePublishBtn"><i class="fa-solid fa-paper-plane"></i> Publish</button>
+    </div>
+  </div>
+</div>
+
+<!-- ======================================================================
+     SHORTCUTS
+     ====================================================================== -->
+<div class="overlay" id="shortcutsOverlay">
+  <div class="modal modal-lg">
+    <div class="modal-header">
+      <div class="modal-icon"><i class="fa-solid fa-keyboard"></i></div>
+      <div><h2>Keyboard Shortcuts</h2></div>
+      <button class="modal-close" data-close-overlay><i class="fa-solid fa-xmark"></i></button>
+    </div>
+    <div class="modal-body" id="shortcutsBody"></div>
+  </div>
+</div>
+
+<!-- ======================================================================
+     GENERIC CONFIRM DIALOG
+     ====================================================================== -->
+<div class="overlay" id="confirmOverlay">
+  <div class="modal confirm-dialog" style="width:min(420px, calc(100vw - 48px));">
+    <div class="modal-header">
+      <div class="modal-icon" id="confirmIcon"><i class="fa-solid fa-triangle-exclamation"></i></div>
+      <div><h2 id="confirmTitle">Are you sure?</h2></div>
+    </div>
+    <div class="modal-body"><p id="confirmMessage"></p></div>
+    <div class="modal-footer">
+      <button class="btn btn-secondary btn-sm" id="confirmCancelBtn">Cancel</button>
+      <button class="btn btn-primary btn-sm" id="confirmOkBtn">Confirm</button>
+    </div>
+  </div>
+</div>
+
+<script src="js/state.js"></script>
+<script src="js/themes.js"></script>
+<script src="js/editor.js"></script>
+<script src="js/ui.js"></script>
+<script src="js/qrcode.js"></script>
+<script src="js/tools.js"></script>
+<script src="js/brainstorm.js"></script>
+<script src="js/cloud.js"></script>
+<script src="js/shortcuts.js"></script>
+<script src="js/app.js"></script>
+</body>
+</html>
