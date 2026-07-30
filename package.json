@@ -1,0 +1,142 @@
+{
+  "name": "poagittext-pro",
+  "productName": "poagitText Pro",
+  "version": "1.0.0",
+  "description": "A fast, offline-first writing app with rich formatting, focus mode, live collaboration, cloud sync, and an AI brainstorming assistant.",
+  "author": "RitPigDev (https://github.com/RitPigDev/poagittext)",
+  "homepage": "https://github.com/RitPigDev/poagittext",
+  "license": "MIT",
+  "main": "src/main/main.js",
+  "engines": {
+    "node": ">=16.14.0"
+  },
+  "scripts": {
+    "start": "electron .",
+    "dev": "electron . --dev",
+    "pack": "electron-builder --dir",
+    "dist": "electron-builder",
+    "dist:mac": "electron-builder --mac",
+    "dist:win": "electron-builder --win",
+    "dist:linux": "electron-builder --linux",
+    "dist:all": "electron-builder -mwl",
+    "postinstall": "electron-builder install-app-deps"
+  },
+  "devDependencies": {
+    "electron": "19.1.9",
+    "electron-builder": "^24.13.3"
+  },
+  "dependencies": {
+    "electron-updater": "^6.1.8"
+  },
+  "build": {
+    "appId": "dev.ritpig.poagittextpro",
+    "productName": "poagitText Pro",
+    "copyright": "Copyright © RitPigDev",
+    "asar": true,
+    "directories": {
+      "output": "release",
+      "buildResources": "build"
+    },
+    "files": [
+      "src/**/*",
+      "package.json",
+      "!**/*.map"
+    ],
+    "extraMetadata": {
+      "main": "src/main/main.js"
+    },
+    "mac": {
+      "category": "public.app-category.productivity",
+      "icon": "build/icon.icns",
+      "target": [
+        {
+          "target": "dmg",
+          "arch": [
+            "x64"
+          ]
+        },
+        {
+          "target": "zip",
+          "arch": [
+            "x64"
+          ]
+        }
+      ],
+      "minimumSystemVersion": "10.12.0",
+      "hardenedRuntime": false,
+      "gatekeeperAssess": false,
+      "darkModeSupport": true
+    },
+    "dmg": {
+      "title": "poagitText Pro ${version}",
+      "icon": "build/icon.icns",
+      "contents": [
+        {
+          "x": 140,
+          "y": 200,
+          "type": "file"
+        },
+        {
+          "x": 400,
+          "y": 200,
+          "type": "link",
+          "path": "/Applications"
+        }
+      ]
+    },
+    "win": {
+      "icon": "build/icon.ico",
+      "target": [
+        {
+          "target": "nsis",
+          "arch": [
+            "x64",
+            "ia32"
+          ]
+        },
+        {
+          "target": "zip",
+          "arch": [
+            "x64",
+            "ia32"
+          ]
+        }
+      ],
+      "requestedExecutionLevel": "asInvoker"
+    },
+    "nsis": {
+      "oneClick": false,
+      "perMachine": false,
+      "allowToChangeInstallationDirectory": true,
+      "createDesktopShortcut": true,
+      "createStartMenuShortcut": true,
+      "shortcutName": "poagitText Pro",
+      "artifactName": "poagitText-Pro-Setup-${version}.${ext}"
+    },
+    "linux": {
+      "icon": "build/icons",
+      "category": "Office",
+      "target": [
+        {
+          "target": "AppImage",
+          "arch": [
+            "x64"
+          ]
+        },
+        {
+          "target": "deb",
+          "arch": [
+            "x64"
+          ]
+        }
+      ]
+    },
+    "publish": {
+      "provider": "github",
+      "owner": "RitPigDev",
+      "repo": "poagittext",
+      "releaseType": "release"
+    }
+  },
+  "keywords": []
+}
