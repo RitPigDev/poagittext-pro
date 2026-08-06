@@ -8,6 +8,9 @@ A completely rewritten newly designed verison of poagitText designed for storywr
 # What is poagitText?
 poagitText is a text editor project started by me in 2024, starting out as a single HTML file text editor. Since then, it has evolved into an entire text editing application for use on your computer.
 
+# Update schedule
+Please expect very frequent updates, especially after a new major release. This is to keep poagitText Pro stable and secure.
+
 # OS Support
 <b>macOS Intel: Native support (10.12 Sierra or higher)</b>
 <b>macOS Arm: Partially compatible using Rosetta 2 (macOS Big Sur or higher)</b>
