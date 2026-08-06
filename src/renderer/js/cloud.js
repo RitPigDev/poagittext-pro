@@ -3,20 +3,23 @@
 /**
  * cloud.js
  * ------------------------------------------------------------------
- * Talks to the same poagitSync backend the original browser build
- * used (a Google Apps Script endpoint), but through
+ * Talks to the poagitSync backend (a Google Apps Script endpoint
+ * rewritten specifically for poagitText Pro) through
  * `window.poagit.net.request` — routed via the main process, so
  * there's no browser CORS restriction and no need for the
- * corsproxy.io/allorigins.win fallback chain the old build relied on.
+ * corsproxy.io/allorigins.win fallback chain the old browser build
+ * relied on.
  *
- * The API surface (action names, parameters) is unchanged from the
- * original app so existing poagitText accounts keep working.
+ * NOTE: login is POST-only on this backend (a GET login puts the
+ * password in the URL — server logs, browser history, proxy logs —
+ * so it's deliberately not supported). Everything else that doesn't
+ * need to hide a credential still uses GET, matching the backend.
  * ------------------------------------------------------------------
  */
 
 PT.cloud = (() => {
-  const SYNC_URL = 'https://script.google.com/macros/s/AKfycbwCWfLW_RhtaczW4woIEjEDg1Jg4pTfmocGLlRcn4JDzyJcPlDu1JGPo6yjo_6ZbFE6zQ/exec';
-  const APP_VERSION = '1.0.0';
+  const SYNC_URL = 'https://script.google.com/macros/s/AKfycbzu1i1J6luKa60ADSt1Be00V78LBuA3PVwLT6k7J7diTEOwFMyQA1rxYihvrshD-vyt/exec';
+  const APP_VERSION = '1.1.0';
 
   let session = null; // { username, token }
   let collabRoom = null; // { code, pollTimer }
@@ -33,7 +36,8 @@ PT.cloud = (() => {
     const url = `${SYNC_URL}?${qs({ action, version: APP_VERSION, ...params })}`;
     const res = await window.poagit.net.request({ url, method: 'GET', timeoutMs: 15000 });
     if (!res.ok) throw new Error(res.error || `Server returned ${res.status}`);
-    return res.json || {};
+    if (!res.json) throw new Error('poagitSync returned an unexpected (non-JSON) response. Check that the Apps Script deployment is "Execute as: Me" / "Who has access: Anyone".');
+    return res.json;
   }
 
   async function post(body) {
@@ -45,7 +49,8 @@ PT.cloud = (() => {
       timeoutMs: 15000,
     });
     if (!res.ok) throw new Error(res.error || `Server returned ${res.status}`);
-    return res.json || {};
+    if (!res.json) throw new Error('poagitSync returned an unexpected (non-JSON) response. Check that the Apps Script deployment is "Execute as: Me" / "Who has access: Anyone".');
+    return res.json;
   }
 
   function init() {
@@ -117,7 +122,7 @@ PT.cloud = (() => {
         if (isLogin) {
           const username = document.getElementById('syncLoginEmail').value.trim();
           const password = document.getElementById('syncLoginPassword').value;
-          data = await get('login', { username, password, app: 'poagitText' });
+          data = await post({ action: 'login', username, password });
         } else {
           const username = document.getElementById('syncRegEmail').value.trim();
           const password = document.getElementById('syncRegPassword').value;

@@ -89,14 +89,6 @@ contextBridge.exposeInMainWorld('poagit', {
     request: (payload) => invoke('net:request', payload),
   },
 
-  brainstorm: {
-    // The Groq API key lives only in the main process (see
-    // src/main/ipc/brainstorm.js) — the renderer never sees it, and
-    // no third-party CORS proxy is needed since main-process requests
-    // aren't browser requests.
-    send: (payload) => invoke('brainstorm:send', payload),
-  },
-
   updater: {
     check: () => invoke('updater:check'),
     download: () => invoke('updater:download'),

@@ -50,12 +50,6 @@ PT.shortcuts = (() => {
         [`${mod}+0`, 'Reset zoom'],
       ],
     },
-    {
-      title: 'Tools',
-      items: [
-        [`${mod}+Shift+B`, 'Toggle Brainstorm'],
-      ],
-    },
   ];
 
   function render() {

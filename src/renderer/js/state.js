@@ -4,7 +4,7 @@
  * state.js
  * ------------------------------------------------------------------
  * A small, framework-free state layer. Everything else in the
- * renderer (editor.js, ui.js, tools.js, brainstorm.js, cloud.js,
+ * renderer (editor.js, ui.js, tools.js, cloud.js,
  * app.js) reads and writes through `PT.state`, and reacts to changes
  * via `PT.state.on(event, callback)`. No virtual DOM, no build step —
  * just a plain object plus an event bus, which is all an app this

@@ -88,13 +88,23 @@ body[data-editor-layout='pages'].page-margin-guides #plainEditor {
 }
 #richEditor img { border-radius: var(--radius-sm); margin: 0.6em 0; box-shadow: var(--shadow-sm); }
 #richEditor mark { background: var(--gold-400); border-radius: 3px; padding: 0 2px; }
-#richEditor::before {
+
+/* ---- Placeholder text (both editors) ----
+   Shown only while the editor is genuinely empty; hidden as soon as the
+   user types. display defaults to none so the pseudo-element doesn't
+   linger on top of typed content — :empty::before then switches it on. */
+#richEditor::before,
+#plainEditor::before {
   content: attr(data-placeholder);
   color: var(--text-muted);
   pointer-events: none;
   position: absolute;
+  display: none;
 }
-#richEditor:empty::before { display: block; }
+#richEditor:empty::before,
+#plainEditor:empty::before {
+  display: block;
+}
 
 /* ---- Gradient / glow caret accent (ported "signature" detail) ---- */
 body[data-caret-style='gradient'] #richEditor,
@@ -163,16 +173,6 @@ body[data-focus-mode='true'] .focus-active { opacity: 1; }
   font-size: 10px; font-weight: 700; color: #fff;
   padding: 1px 6px; border-radius: var(--radius-sm) var(--radius-sm) var(--radius-sm) 0;
 }
-
-/* ---- Outline panel entries ---- */
-.outline-item {
-  display: flex; align-items: center; gap: 8px;
-  padding: 7px 10px; border-radius: var(--radius-sm);
-  font-size: 12px; color: var(--text-secondary); cursor: pointer;
-}
-.outline-item:hover { background: var(--surface-3); color: var(--text-primary); }
-.outline-item.level-2 { padding-left: 22px; }
-.outline-item.level-3 { padding-left: 34px; font-size: 11.5px; }
 
 /* ---- Find & Replace match highlighting ---- */
 mark.find-hit {

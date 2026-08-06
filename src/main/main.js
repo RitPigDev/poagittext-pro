@@ -7,7 +7,6 @@ const { Store } = require('./store');
 const { buildMenu } = require('./menu');
 const fileHandlers = require('./ipc/fileHandlers');
 const netHandlers = require('./ipc/netHandlers');
-const brainstormHandler = require('./ipc/brainstormHandler');
 const windowHandlers = require('./ipc/windowHandlers');
 const updaterHandlers = require('./ipc/updaterHandlers');
 
@@ -22,6 +21,7 @@ const isMac = process.platform === 'darwin';
 const gotLock = app.requestSingleInstanceLock();
 if (!gotLock) {
   app.quit();
+  return;
 }
 
 /** windowId -> { isDirty, forceClose } — used by the "unsaved changes" close guard. */
@@ -71,6 +71,11 @@ function createWindow() {
       nodeIntegration: false,
       sandbox: false,
       spellcheck: true,
+      // Powers the in-app "Browser" tab (src/renderer/js/browser.js). The
+      // <webview> guest is a separate, unprivileged process/context — it
+      // gets none of the preload's window.poagit bridge and no Node APIs,
+      // same as any ordinary web page.
+      webviewTag: true,
     },
   });
 
@@ -95,6 +100,22 @@ function createWindow() {
   };
   win.on('resize', persistBounds);
   win.on('move', persistBounds);
+
+  // Only the Browser tab's own <webview> (src/renderer/js/browser.js)
+  // ever gets attached here, but force it to run with no Node access
+  // and a real isolated context regardless of what the renderer HTML
+  // happened to declare, and refuse to attach anything pointed at a
+  // local file:// URL.
+  win.webContents.on('will-attach-webview', (_wawEvent, webPreferences, params) => {
+    delete webPreferences.preload;
+    delete webPreferences.preloadURL;
+    webPreferences.nodeIntegration = false;
+    webPreferences.contextIsolation = true;
+    webPreferences.sandbox = true;
+    if (params.src && !/^(https?:|about:blank)/i.test(params.src)) {
+      params.src = 'about:blank';
+    }
+  });
 
   // --- Forward maximize/fullscreen state so the custom titlebar can
   //     swap its restore/maximize icon and hide itself in fullscreen ---
@@ -168,7 +189,6 @@ app.whenReady().then(() => {
   const ctx = { ipcMain, dialog, shell, app, store, BrowserWindow, windows, windowState, getFocusedWindow, createWindow, getWindowById: (id) => BrowserWindow.fromId(id) };
   fileHandlers.register(ctx);
   netHandlers.register(ctx);
-  brainstormHandler.register(ctx);
   windowHandlers.register(ctx);
   updaterHandlers.register(ctx);
 
@@ -181,11 +201,30 @@ app.whenReady().then(() => {
   // send any external link (http/https) to the OS browser instead of
   // letting it open inside the app — a small but real security hardening
   // step for a text editor that renders user-provided HTML/rich text.
+  //
+  // The one deliberate exception is the "Browser" tab's <webview> guest
+  // (src/renderer/js/browser.js) — that's the whole point of it, and its
+  // guest process/context has none of our preload's window.poagit bridge
+  // or Node access, so letting it browse freely doesn't weaken the app
+  // shell's own hardening above.
   app.on('web-contents-created', (_e, contents) => {
+    const isBrowserGuest = contents.getType() === 'webview';
+
     contents.on('will-navigate', (navEvent, url) => {
+      if (isBrowserGuest) return;
       if (!url.startsWith('file://')) navEvent.preventDefault();
     });
+
     contents.setWindowOpenHandler(({ url }) => {
+      if (isBrowserGuest) {
+        // e.g. Google sign-in / consent popups — let them open as a
+        // normal, separate, un-privileged window rather than swallowing
+        // them (which would silently break login flows).
+        if (/^https?:\/\//i.test(url)) {
+          return { action: 'allow', overrideBrowserWindowOptions: { autoHideMenuBar: true, webPreferences: { contextIsolation: true, nodeIntegration: false } } };
+        }
+        return { action: 'deny' };
+      }
       if (/^https?:\/\//i.test(url)) shell.openExternal(url);
       return { action: 'deny' };
     });

@@ -8,8 +8,8 @@ const { net } = require('electron');
  * normalized { ok, status, json, text } result.
  *
  * Why this lives in the main process rather than a renderer `fetch()`:
- * the old browser build of this app had to route every poagitSync and
- * Brainstorm call through public CORS-unblocking proxies
+ * the old browser build of this app had to route every poagitSync
+ * call through public CORS-unblocking proxies
  * (corsproxy.io, allorigins.win, codetabs.com) because a page served
  * from a `file://`/`https://` origin can't call an arbitrary
  * third-party API directly. Those proxies are a real liability — they
@@ -29,7 +29,7 @@ function performRequest({ url, method = 'GET', headers = {}, body, timeoutMs = 1
 
     let request;
     try {
-      request = net.request({ method, url });
+      request = net.request({ method, url, redirect: 'follow' });
     } catch (err) {
       finish({ ok: false, status: 0, error: err.message });
       return;

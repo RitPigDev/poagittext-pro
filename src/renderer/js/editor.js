@@ -4,7 +4,7 @@
  * editor.js
  * ------------------------------------------------------------------
  * Owns the two editable surfaces (#richEditor / #plainEditor), all
- * formatting commands, live statistics, the document outline, the
+ * formatting commands, live statistics, the
  * gradient caret indicator, focus mode, zoom, and find & replace.
  *
  * Undo/redo deliberately rides on the browser's native
@@ -42,7 +42,12 @@ PT.editor = (() => {
 
     [richEl, plainEl].forEach((el) => {
       el.addEventListener('input', onInput);
-      el.addEventListener('keyup', onCaretMoved);
+      el.addEventListener('keyup', (e) => {
+        onCaretMoved();
+        if (e.key.startsWith('Arrow') || e.key === 'Enter' || e.key === 'PageUp' || e.key === 'PageDown' || e.key === 'Home' || e.key === 'End') {
+          ensureCaretVisible();
+        }
+      });
       el.addEventListener('click', onCaretMoved);
       el.addEventListener('scroll', positionCaretGlow, { passive: true });
       el.addEventListener('mouseup', onSelectionChange);
@@ -67,6 +72,19 @@ PT.editor = (() => {
     if (e.key === 'Tab') {
       e.preventDefault();
       exec(e.shiftKey ? 'outdent' : 'indent');
+    }
+  }
+
+  // If the user has deleted everything, the browser commonly leaves a
+  // stray `<br>` (or an empty block element) behind rather than a truly
+  // empty element. That defeats the `:empty` CSS selector the placeholder
+  // relies on, so the placeholder never comes back. Clean that up here.
+  function normalizeEmptyState() {
+    const el = activeEl();
+    const bareHtml = el.innerHTML.replace(/<br\s*\/?>/gi, '').trim();
+    const textOnly = el.textContent.trim();
+    if (!textOnly && (bareHtml === '' || /^(<p><\/p>|<div><\/div>)$/i.test(bareHtml))) {
+      el.innerHTML = '';
     }
   }
 
@@ -101,6 +119,7 @@ PT.editor = (() => {
   }
 
   function onInput() {
+    normalizeEmptyState();
     captureContent();
     clearTimeout(debounceTimer);
     debounceTimer = setTimeout(recomputeAll, 30);
@@ -108,10 +127,10 @@ PT.editor = (() => {
     statsDebounceTimer = setTimeout(() => PT.state.emit('stats-changed', computeStats()), 350);
     updateLineNumbers();
     onCaretMoved();
+    ensureCaretVisible();
   }
 
   function recomputeAll() {
-    updateOutline();
     updateLineNumbers();
     positionCaretGlow();
     PT.state.emit('stats-changed', computeStats());
@@ -175,9 +194,18 @@ PT.editor = (() => {
     updateToolbarState();
   }
 
+  function escapeHtml(str) {
+    return String(str)
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;')
+      .replace(/'/g, '&#39;');
+  }
+
   function insertLink(url, label) {
     activeEl().focus();
-    if (label) document.execCommand('insertHTML', false, `<a href="${url.replace(/"/g, '&quot;')}" target="_blank" rel="noopener">${label}</a>`);
+    if (label) document.execCommand('insertHTML', false, `<a href="${url.replace(/"/g, '&quot;')}" target="_blank" rel="noopener">${escapeHtml(label)}</a>`);
     else document.execCommand('createLink', false, url);
     captureContent();
   }
@@ -207,6 +235,35 @@ PT.editor = (() => {
     positionCaretGlow();
     updateCaretStatus();
     updateFocusMode();
+  }
+
+  // Chromium's native "scroll caret into view" logic is unreliable in
+  // pageless (free-flow) mode here: the contenteditable sits inside a
+  // flex column (#editorColumn > #editorScroll > .editor-mode-pane),
+  // and with that nesting the browser will often move the caret below
+  // the fold without scrolling #editorScroll to follow it — the text
+  // keeps growing but the visible viewport just sits still. We can't
+  // rely on the browser to fix that itself, so we do it by hand: after
+  // any input or caret-moving keystroke, check whether the caret rect
+  // is still inside the scroll container's visible bounds and nudge
+  // scrollTop if not. This is a no-op whenever the caret is already
+  // visible, so it's safe to run in page mode too.
+  function ensureCaretVisible() {
+    const sel = window.getSelection();
+    if (!sel || sel.rangeCount === 0) return;
+    const el = activeEl();
+    if (!el.contains(sel.anchorNode)) return;
+    const scrollHost = document.getElementById('editorScroll');
+    const range = sel.getRangeAt(0).cloneRange();
+    const rect = range.getClientRects()[0] || range.getBoundingClientRect();
+    if (!rect || (rect.width === 0 && rect.height === 0 && rect.top === 0)) return;
+    const hostRect = scrollHost.getBoundingClientRect();
+    const margin = 32;
+    if (rect.bottom > hostRect.bottom - margin) {
+      scrollHost.scrollTop += rect.bottom - (hostRect.bottom - margin);
+    } else if (rect.top < hostRect.top + margin) {
+      scrollHost.scrollTop -= (hostRect.top + margin) - rect.top;
+    }
   }
 
   function positionCaretGlow() {
@@ -343,7 +400,7 @@ PT.editor = (() => {
     const chars = text.length;
     const sentences = text.length ? (text.match(/[^.!?]+[.!?]+|\S+$/g) || []).filter((s) => s.trim().length) : [];
     const paragraphs = text.length ? text.split(/\n{2,}/).filter((p) => p.trim().length) : [];
-    const readTimeMin = Math.max(1, Math.round(words.length / 220)) || (words.length ? 1 : 0);
+    const readTimeMin = words.length ? Math.max(1, Math.round(words.length / 220)) : 0;
 
     const freq = new Map();
     words.forEach((w) => {
@@ -362,26 +419,6 @@ PT.editor = (() => {
       uniqueWords: freq.size,
       topWords,
     };
-  }
-
-  // ---------------------------------------------------------------------
-  // Outline (rich mode headings)
-  // ---------------------------------------------------------------------
-  function updateOutline() {
-    const doc = PT.state.getActiveDocument();
-    const items = [];
-    if (doc && doc.mode === 'rich') {
-      richEl.querySelectorAll('h1, h2, h3').forEach((h, i) => {
-        if (!h.id) h.id = `heading-${i}-${PT.state.uid()}`;
-        items.push({ id: h.id, text: h.textContent.trim() || '(untitled)', level: Number(h.tagName[1]) });
-      });
-    }
-    PT.state.emit('outline-changed', items);
-  }
-
-  function scrollToHeading(id) {
-    const el = document.getElementById(id);
-    if (el) el.scrollIntoView({ behavior: PT.state.settings.performanceMode ? 'auto' : 'smooth', block: 'center' });
   }
 
   // ---------------------------------------------------------------------
@@ -513,7 +550,6 @@ PT.editor = (() => {
     switchEditorMode,
     captureContent,
     computeStats,
-    scrollToHeading,
     find,
     zoomBy,
     applyZoom,

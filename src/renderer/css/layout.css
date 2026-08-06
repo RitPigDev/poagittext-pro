@@ -206,6 +206,7 @@ body[data-platform='darwin'] #windowControls { display: none; }
   display: flex;
   flex-direction: column;
   min-width: 0;
+  min-height: 0;
   background: var(--surface-1);
   position: relative;
 }
@@ -219,8 +220,7 @@ body[data-platform='darwin'] #windowControls { display: none; }
   padding: 0 10px;
   border-bottom: 1px solid var(--border-subtle);
   background: var(--surface-0);
-  overflow-x: auto;
-  overflow-y: hidden;
+  overflow: visible;
 }
 .toolbar-group {
   display: flex; align-items: center; gap: 2px;
@@ -244,7 +244,7 @@ body.zen-mode #rightPanel { display: none !important; }
 body.zen-mode #mainRow { grid-template-columns: 0 0 1fr 0; }
 body.zen-mode #editorScroll { display: flex; justify-content: center; }
 
-/* ---- Right panel (outline / stats), same visual language as sidebar ---- */
+/* ---- Right panel (stats / tools), same visual language as sidebar ---- */
 #rightPanel {
   grid-column: 4;
   width: 260px;
@@ -284,10 +284,99 @@ body.zen-mode #editorScroll { display: flex; justify-content: center; }
   box-shadow: 0 0 0 2px rgba(255,255,255,0.35);
 }
 
+/* ---------------------------------------------------------------------- */
+/* Browser panel — lives in the same left sidebar as Explorer/Stats/Tools/ */
+/* Cloud, so you can browse Google, Gemini, etc. right next to your       */
+/* documents while you keep writing.                                      */
+/* ---------------------------------------------------------------------- */
+.sidebar-body { position: relative; }
+#sidebar .sidebar-panel[data-panel-content="browser"] {
+  /* Cancel out .sidebar-body's padding/scroll so the webview gets the
+     full sidebar area edge-to-edge, like a real browser pane. */
+  position: absolute;
+  top: 0; left: -8px; right: -8px; bottom: -16px;
+  display: none;
+  flex-direction: column;
+  background: var(--surface-2);
+}
+#sidebar .sidebar-panel[data-panel-content="browser"].active { display: flex; }
+
+#browserBar {
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 4px;
+  padding: 8px;
+  border-bottom: 1px solid var(--border-subtle);
+}
+#browserBar .tbtn { width: 26px; height: 26px; font-size: 12px; }
+.browser-nav-group { display: flex; align-items: center; gap: 2px; flex-shrink: 0; }
+
+#browserAddressForm {
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  height: 32px;
+  margin: 0 8px 8px;
+  padding: 0 10px;
+  border-radius: var(--radius-full);
+  background: var(--surface-3);
+  border: 1px solid var(--border-subtle);
+}
+#browserAddressForm:focus-within { border-color: var(--brand-500, var(--gold-500)); }
+.browser-address-icon { font-size: 10px; color: var(--text-muted); flex-shrink: 0; }
+#browserAddressInput {
+  flex: 1;
+  min-width: 0;
+  border: none;
+  background: transparent;
+  outline: none;
+  font-size: 12px;
+  color: var(--text-primary);
+}
+
+#browserQuickLinks {
+  display: none;
+  flex-wrap: wrap;
+  gap: 6px;
+  padding: 0 8px 8px;
+}
+.browser-quicklink {
+  display: flex; align-items: center; justify-content: center;
+  width: 28px; height: 28px;
+  border-radius: var(--radius-md);
+  background: var(--surface-3);
+  border: 1px solid var(--border-subtle);
+  color: var(--text-secondary, var(--text-primary));
+  font-size: 12px;
+  transition: background var(--duration-fast) var(--ease-standard), color var(--duration-fast) var(--ease-standard);
+}
+.browser-quicklink:hover { background: var(--gradient-brand); color: var(--text-on-brand); }
+
+#browserSurface { position: relative; flex: 1; min-height: 0; background: #fff; }
+#browserWebview { width: 100%; height: 100%; display: flex; border: none; }
+
+#browserLoadingBar {
+  position: absolute; top: 0; left: 0; right: 0; height: 2px;
+  background: transparent; pointer-events: none; overflow: hidden;
+}
+#browserLoadingFill {
+  height: 100%; width: 30%;
+  background: var(--gradient-brand);
+  transform: translateX(-100%);
+}
+#browserLoadingBar.loading #browserLoadingFill { animation: browser-loading-sweep 1.1s ease-in-out infinite; }
+@keyframes browser-loading-sweep {
+  0% { transform: translateX(-100%); }
+  50% { transform: translateX(120%); }
+  100% { transform: translateX(320%); }
+}
+
 /* ---- Mobile / narrow-window collapse (small windows, not just phones) --- */
 @media (max-width: 760px) {
   #mainRow { grid-template-columns: var(--rail-width) 0 1fr 0; }
   #sidebar { position: fixed; left: var(--rail-width); top: var(--titlebar-height); bottom: var(--statusbar-height); z-index: 50; box-shadow: var(--shadow-lg); }
   #sidebar:not(.mobile-open) { display: none; }
-  #rightPanel { position: fixed; right: 0; top: var(--titlebar-height); bottom: var(--statusbar-height); z-index: 50; box-shadow: var(--shadow-lg); }
 }

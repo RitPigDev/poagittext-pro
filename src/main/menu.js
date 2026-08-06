@@ -91,8 +91,7 @@ function buildMenu(getFocusedWindow, createWindow) {
       submenu: [
         { label: 'Command Palette…', accelerator: 'CmdOrCtrl+K', click: () => send('open-command-palette') },
         { type: 'separator' },
-        { label: 'Toggle Sidebar', accelerator: 'CmdOrCtrl+B', click: () => send('toggle-sidebar') },
-        { label: 'Toggle Outline', accelerator: 'CmdOrCtrl+Shift+O', click: () => send('toggle-outline') },
+        { label: 'Toggle Sidebar', click: () => send('toggle-sidebar') },
         { label: 'Toggle Statistics', click: () => send('toggle-stats') },
         { label: 'Toggle Line Numbers', click: () => send('toggle-line-numbers') },
         { type: 'separator' },
@@ -134,8 +133,8 @@ function buildMenu(getFocusedWindow, createWindow) {
         { label: 'Block Quote', accelerator: 'CmdOrCtrl+Shift+9', click: () => send('format', 'quote') },
         { label: 'Horizontal Rule', click: () => send('format', 'hr') },
         { type: 'separator' },
-        { label: 'Increase Indent', accelerator: 'Tab', click: () => send('format', 'indent') },
-        { label: 'Decrease Indent', accelerator: 'Shift+Tab', click: () => send('format', 'outdent') },
+        { label: 'Increase Indent', click: () => send('format', 'indent') },
+        { label: 'Decrease Indent', click: () => send('format', 'outdent') },
         { type: 'separator' },
         { label: 'Clear Formatting', accelerator: 'CmdOrCtrl+\\', click: () => send('format', 'clear') },
       ],
@@ -146,7 +145,6 @@ function buildMenu(getFocusedWindow, createWindow) {
       label: 'Tools',
       submenu: [
         { label: 'Word Count & Statistics', click: () => send('toggle-stats') },
-        { label: 'Document Outline', click: () => send('toggle-outline') },
         { type: 'separator' },
         { label: 'Utility Tools', submenu: [
           { label: 'Base64 Encode/Decode', click: () => send('open-tool', 'base64') },
@@ -156,8 +154,6 @@ function buildMenu(getFocusedWindow, createWindow) {
           { label: 'Remove Extra Spaces', click: () => send('open-tool', 'trim-spaces') },
           { label: 'QR Code Generator', click: () => send('open-tool', 'qr') },
         ]},
-        { type: 'separator' },
-        { label: 'Brainstorm Assistant', accelerator: 'CmdOrCtrl+Shift+B', click: () => send('toggle-brainstorm') },
         { type: 'separator' },
         { label: 'poagitSync (Cloud & Backups)', click: () => send('open-sync') },
         { label: 'Live Collaboration…', click: () => send('open-collab') },
@@ -178,8 +174,8 @@ function buildMenu(getFocusedWindow, createWindow) {
     {
       role: 'help',
       submenu: [
-        { label: 'poagitText Pro Help', click: () => shell.openExternal('https://github.com/RitPigDev/poagittext') },
-        { label: 'Report an Issue', click: () => shell.openExternal('https://github.com/RitPigDev/poagittext/issues') },
+        { label: 'poagitText Pro Help', click: () => shell.openExternal('https://github.com/RitPigDev/poagittext-pro') },
+        { label: 'Report an Issue', click: () => shell.openExternal('https://github.com/RitPigDev/poagittext-pro/issues') },
         { label: 'Keyboard Shortcuts', click: () => send('open-shortcuts') },
         { type: 'separator' },
         { label: 'Check for Updates…', click: () => send('check-for-updates') },

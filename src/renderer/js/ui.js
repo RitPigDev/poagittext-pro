@@ -152,7 +152,7 @@ PT.ui = (() => {
   // ---------------------------------------------------------------------
   // Sidebar panel switching
   // ---------------------------------------------------------------------
-  const PANEL_TITLES = { explorer: 'Explorer', outline: 'Outline', stats: 'Statistics', tools: 'Tools & Modules', brainstorm: 'Brainstorm', cloud: 'Cloud & Collaboration' };
+  const PANEL_TITLES = { explorer: 'Explorer', stats: 'Statistics', tools: 'Tools & Modules', cloud: 'Cloud & Collaboration', browser: 'Browser (Beta)' };
 
   function showPanel(panel) {
     document.querySelectorAll('.rail-btn[data-panel]').forEach((b) => b.classList.toggle('active', b.dataset.panel === panel));
@@ -160,6 +160,7 @@ PT.ui = (() => {
     document.getElementById('sidebarTitle').textContent = PANEL_TITLES[panel] || panel;
     document.getElementById('sidebar').classList.remove('collapsed');
     PT.state.setSetting('lastPanel', panel);
+    if (panel === 'browser') PT.browser.onShown();
   }
 
   function toggleSidebar() {
@@ -169,17 +170,8 @@ PT.ui = (() => {
   }
 
   // ---------------------------------------------------------------------
-  // Outline / Stats rendering
+  // Stats rendering
   // ---------------------------------------------------------------------
-  function renderOutline(items) {
-    const list = document.getElementById('outlineList');
-    if (!items.length) {
-      list.innerHTML = '<div class="empty-state"><i class="fa-solid fa-list-ul"></i><p>Add headings (H1–H3) to your document to see them here.</p></div>';
-      return;
-    }
-    list.innerHTML = items.map((it) => `<div class="outline-item level-${it.level}" data-heading-id="${it.id}">${escapeHtml(it.text)}</div>`).join('');
-  }
-
   function renderStats(stats) {
     document.getElementById('statWords').textContent = stats.words.toLocaleString();
     document.getElementById('statChars').textContent = stats.chars.toLocaleString();
@@ -297,7 +289,7 @@ PT.ui = (() => {
     showContextMenu,
     renderTabs, renderRecentFiles,
     showPanel, toggleSidebar,
-    renderOutline, renderStats,
+    renderStats,
     renderThemeGrid, renderFontGrid,
     setPaletteCommands, openCommandPalette, renderPalette, paletteMove, paletteRunSelected,
     initSettingsNav,

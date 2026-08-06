@@ -2,9 +2,9 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8" />
-<meta http-equiv="Content-Security-Policy" content="default-src 'self'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; img-src 'self' data: blob:; font-src 'self' data: https://fonts.gstatic.com; script-src 'self'; connect-src 'none';" />
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; img-src 'self' data: blob:; font-src 'self' data: https://fonts.gstatic.com; script-src 'self'; connect-src 'none'; child-src 'self' https:; frame-src 'self' https:;" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>poagitText Pro (development build)</title>
+<title>poagitText Pro</title>
 <link rel="stylesheet" href="assets/fontawesome/css/all.min.css" />
 <link rel="stylesheet" href="css/fonts.css" />
 <link rel="stylesheet" href="css/variables.css" />
@@ -48,11 +48,10 @@
     <!-- ---- Activity rail ---- -->
     <nav id="activityRail" aria-label="Panels">
       <button class="rail-btn active" data-panel="explorer" data-tip="Explorer"><i class="fa-regular fa-folder-open"></i></button>
-      <button class="rail-btn" data-panel="outline" data-tip="Outline"><i class="fa-solid fa-list-ul"></i></button>
       <button class="rail-btn" data-panel="stats" data-tip="Statistics"><i class="fa-solid fa-chart-simple"></i></button>
       <button class="rail-btn" data-panel="tools" data-tip="Tools & Modules"><i class="fa-solid fa-toolbox"></i></button>
-      <button class="rail-btn" data-panel="brainstorm" data-tip="Brainstorm Assistant"><i class="fa-solid fa-wand-magic-sparkles"></i></button>
       <button class="rail-btn" data-panel="cloud" data-tip="Cloud, Sync & Collaboration"><i class="fa-solid fa-cloud"></i></button>
+      <button class="rail-btn" data-panel="browser" data-tip="Browser (Beta)"><i class="fa-solid fa-compass"></i></button>
       <div class="rail-spacer"></div>
       <button class="rail-btn" data-action="open-command-palette" data-tip="Command Palette (Ctrl+K)"><i class="fa-solid fa-terminal"></i></button>
       <button class="rail-btn" data-action="open-settings" data-tip="Settings"><i class="fa-solid fa-gear"></i></button>
@@ -81,13 +80,6 @@
           <div class="panel-section">
             <h4>Recent Files</h4>
             <div id="recentFilesList"></div>
-          </div>
-        </section>
-
-        <!-- Outline panel -->
-        <section class="sidebar-panel" data-panel-content="outline">
-          <div class="panel-section" style="padding-top:4px;">
-            <div id="outlineList"></div>
           </div>
         </section>
 
@@ -125,28 +117,6 @@
           </div>
         </section>
 
-        <!-- Brainstorm panel -->
-        <section class="sidebar-panel" data-panel-content="brainstorm" style="height:100%;">
-          <div id="brainstormPanel">
-            <div class="brainstorm-mode-switch">
-              <div class="segmented">
-                <button class="active" data-bs-mode="story">Story Ideas</button>
-                <button data-bs-mode="writer">Writer Mode</button>
-              </div>
-            </div>
-            <div class="brainstorm-messages" id="brainstormMessages">
-              <div class="empty-state">
-                <i class="fa-solid fa-wand-magic-sparkles"></i>
-                <p><strong>Story Ideas</strong> gives you concepts and direction without writing your prose for you. Switch to <strong>Writer Mode</strong> when you want direct drafting help.</p>
-              </div>
-            </div>
-            <div class="brainstorm-input-row">
-              <textarea id="brainstormInput" class="field" rows="1" placeholder="Ask Brainstorm…"></textarea>
-              <button class="btn btn-primary btn-icon" id="brainstormSend" data-tip="Send"><i class="fa-solid fa-paper-plane"></i></button>
-            </div>
-          </div>
-        </section>
-
         <!-- Cloud panel -->
         <section class="sidebar-panel" data-panel-content="cloud">
           <div class="panel-section" style="padding-top:4px;">
@@ -163,6 +133,35 @@
           <div class="panel-section">
             <h4>Share</h4>
             <button class="btn btn-secondary btn-sm" style="width:100%;" data-action="open-share"><i class="fa-solid fa-share-nodes"></i> Share to Feed</button>
+          </div>
+        </section>
+
+        <!-- Browser panel: small in-sidebar browser usable while you write -->
+        <section class="sidebar-panel" data-panel-content="browser">
+          <div id="browserBar">
+            <div class="browser-nav-group">
+              <button class="tbtn" id="browserBackBtn" data-tip="Back"><i class="fa-solid fa-arrow-left"></i></button>
+              <button class="tbtn" id="browserForwardBtn" data-tip="Forward"><i class="fa-solid fa-arrow-right"></i></button>
+              <button class="tbtn" id="browserReloadBtn" data-tip="Reload"><i class="fa-solid fa-arrow-rotate-right"></i></button>
+              <button class="tbtn" id="browserHomeBtn" data-tip="Home"><i class="fa-solid fa-compass"></i></button>
+            </div>
+            <button type="button" class="tbtn" id="browserOpenExternalBtn" data-tip="Open in default browser"><i class="fa-solid fa-arrow-up-right-from-square"></i></button>
+          </div>
+          <form id="browserAddressForm" autocomplete="off">
+            <i class="fa-solid fa-lock browser-address-icon" id="browserAddressIcon"></i>
+            <input type="text" id="browserAddressInput" placeholder="Search Google or type a URL…" spellcheck="false" />
+          </form>
+          <div id="browserQuickLinks">
+            <button data-browser-go="https://www.google.com" class="browser-quicklink" data-tip="Google"><i class="fa-brands fa-google"></i></button>
+            <button data-browser-go="https://gemini.google.com" class="browser-quicklink" data-tip="Gemini"><i class="fa-solid fa-star"></i></button>
+            <button data-browser-go="https://chat.openai.com" class="browser-quicklink" data-tip="ChatGPT"><i class="fa-solid fa-robot"></i></button>
+            <button data-browser-go="https://www.bing.com" class="browser-quicklink" data-tip="Bing"><i class="fa-brands fa-microsoft"></i></button>
+            <button data-browser-go="https://en.wikipedia.org" class="browser-quicklink" data-tip="Wikipedia"><i class="fa-brands fa-wikipedia-w"></i></button>
+            <button data-browser-go="https://translate.google.com" class="browser-quicklink" data-tip="Translate"><i class="fa-solid fa-language"></i></button>
+          </div>
+          <div id="browserSurface">
+            <webview id="browserWebview" src="about:blank" allowpopups useragent="Mozilla/5.0 (Linux; Android 14; Pixel 8) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/126.0.0.0 Mobile Safari/537.36"></webview>
+            <div id="browserLoadingBar"><div id="browserLoadingFill"></div></div>
           </div>
         </section>
 
@@ -252,7 +251,6 @@
           <button class="tbtn" data-format="bold"><i class="fa-solid fa-bold"></i></button>
           <button class="tbtn" data-format="italic"><i class="fa-solid fa-italic"></i></button>
           <button class="tbtn" data-format="underline"><i class="fa-solid fa-underline"></i></button>
-          <button class="tbtn" data-action="ask-brainstorm-selection"><i class="fa-solid fa-wand-magic-sparkles"></i></button>
         </div>
       </div>
     </main>
@@ -369,7 +367,7 @@
           </div>
           <div class="settings-pane" data-settings-content="updates">
             <div id="updateStatusArea" style="padding: 10px 0;">
-              <p class="text-muted" style="font-size:12.5px;">poagitText Pro v<span id="appVersionLabel">Celebensis</span></p>
+              <p class="text-muted" style="font-size:12.5px;">poagitText Pro v1.2.0</p>
               <button class="btn btn-primary btn-sm" data-action="check-for-updates">Check for Updates</button>
               <div id="updateProgressArea" style="margin-top:14px; display:none;">
                 <div class="progress-track"><div class="progress-fill" id="updateProgressFill" style="width:0%;"></div></div>
@@ -381,10 +379,10 @@
             <div style="text-align:center; padding: 20px 0;">
               <img src="assets/icons/app-icon.png" style="width:64px; height:64px; border-radius:16px; margin:0 auto 14px;" />
               <h2 style="margin:0 0 4px;">poagitText Pro</h2>
-              <p class="text-muted" style="font-size:12.5px; margin:0 0 14px;">Version <span id="appVersionLabel2">Celebensis</span></p>
-              <p class="text-muted" style="font-size:11.5px; max-width:360px; margin: 0 auto;">Your customizable pro text editor.</p>
+              <p class="text-muted" style="font-size:12.5px; margin:0 0 14px;">"Celebensis"</p>
+              <p class="text-muted" style="font-size:11.5px; max-width:360px; margin: 0 auto;">RitPig's customizable text editor</p>
               <div style="margin-top:16px; display:flex; gap:8px; justify-content:center;">
-                <button class="btn btn-secondary btn-sm" data-action="open-external" data-url="https://github.com/RitPigDev/poagittext">GitHub</button>
+                <button class="btn btn-secondary btn-sm" data-action="open-external" data-url="https://github.com/RitPigDev/poagittext-pro">GitHub</button>
                 <button class="btn btn-secondary btn-sm" data-action="open-shortcuts">Keyboard Shortcuts</button>
               </div>
             </div>
@@ -583,8 +581,8 @@
 <script src="js/ui.js"></script>
 <script src="js/qrcode.js"></script>
 <script src="js/tools.js"></script>
-<script src="js/brainstorm.js"></script>
 <script src="js/cloud.js"></script>
+<script src="js/browser.js"></script>
 <script src="js/shortcuts.js"></script>
 <script src="js/app.js"></script>
 </body>

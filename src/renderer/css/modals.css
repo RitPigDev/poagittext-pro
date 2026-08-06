@@ -135,23 +135,6 @@
 .font-card .font-sample { font-size: 20px; margin-bottom: 6px; }
 .font-card .font-name { font-size: 11px; color: var(--text-muted); }
 
-/* ---- Brainstorm panel (docked right, chat-style) ---- */
-#brainstormPanel { display: flex; flex-direction: column; height: 100%; }
-.brainstorm-messages { flex: 1; overflow-y: auto; padding: 14px; display: flex; flex-direction: column; gap: 12px; }
-.bs-msg { max-width: 88%; padding: 10px 13px; border-radius: var(--radius-md); font-size: 12.5px; line-height: 1.55; }
-.bs-msg.user { align-self: flex-end; background: var(--gradient-brand); color: #fff; border-bottom-right-radius: 3px; }
-.bs-msg.assistant { align-self: flex-start; background: var(--surface-3); border-bottom-left-radius: 3px; }
-.bs-msg.assistant .bs-model-tag { font-size: 10px; color: var(--text-muted); margin-bottom: 4px; font-weight: 700; }
-.brainstorm-input-row {
-  display: flex; align-items: flex-end; gap: 8px;
-  padding: 10px; border-top: 1px solid var(--border-subtle);
-}
-.brainstorm-input-row textarea {
-  flex: 1; border: 1px solid var(--border-default); border-radius: var(--radius-md);
-  padding: 9px 11px; font-size: 12.5px; resize: none; max-height: 120px; background: var(--surface-0);
-}
-.brainstorm-mode-switch { padding: 10px 10px 0; }
-
 /* ---- Confirm / alert dialog ---- */
 .confirm-dialog .modal-body { text-align: left; font-size: 13px; color: var(--text-secondary); }
 

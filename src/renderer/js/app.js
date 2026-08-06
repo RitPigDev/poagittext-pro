@@ -15,8 +15,6 @@
     // ---- Platform-specific chrome (titlebar padding, traffic lights) ----
     const platformInfo = await window.poagit.app.getPlatformInfo();
     document.body.dataset.platform = platformInfo.platform;
-    document.getElementById('appVersionLabel').textContent = await window.poagit.app.getVersion();
-    document.getElementById('appVersionLabel2').textContent = document.getElementById('appVersionLabel').textContent;
 
     // ---- Hydrate settings from disk, then apply everything they affect ----
     const savedSettings = await window.poagit.settings.getAll();
@@ -27,8 +25,8 @@
     PT.editor.init();
     PT.ui.initDropdowns();
     PT.ui.initSettingsNav();
-    PT.brainstorm.init();
     PT.cloud.init();
+    PT.browser.wire();
     PT.shortcuts.render();
 
     // ---- First document ----
@@ -168,14 +166,10 @@
     // Note: the sidebar's own collapse button carries data-action="toggle-sidebar",
     // already handled by the generic delegated handler — no listener needed here.
 
-    document.getElementById('sidebar').addEventListener('click', (e) => {
-      const outlineItem = e.target.closest('[data-heading-id]');
-      if (outlineItem) PT.editor.scrollToHeading(outlineItem.dataset.headingId);
-    });
-
-    document.querySelector('[data-action="open-collab"]').addEventListener('click', () => PT.ui.openOverlay('collabOverlay'));
-    document.querySelector('[data-action="open-share"]').addEventListener('click', () => PT.cloud.openShareWithCurrentDocument());
-    document.querySelector('[data-action="open-sync"]').addEventListener('click', () => PT.ui.openOverlay('syncOverlay'));
+    // open-collab / open-share / open-sync are wired via the generic
+    // delegated handler in wireOverlaysGeneric — cloud.js re-renders
+    // #syncStatusArea's innerHTML on every login/logout, which would
+    // orphan a listener bound directly to the button here.
   }
 
   // ---------------------------------------------------------------------
@@ -203,8 +197,6 @@
     document.getElementById('floatingFormatBar').addEventListener('click', (e) => {
       const formatBtn = e.target.closest('[data-format]');
       if (formatBtn) PT.editor.exec(formatBtn.dataset.format);
-      const action = e.target.closest('[data-action]')?.dataset.action;
-      if (action === 'ask-brainstorm-selection') PT.brainstorm.askAboutSelection();
     });
 
     document.getElementById('fontFamilyMenu').addEventListener('click', (e) => {
@@ -309,6 +301,9 @@
         'check-for-updates': () => window.poagit.updater.check(),
         'upload-custom-font': () => PT.tools.uploadCustomFont(),
         'open-external': (el) => window.poagit.app.openExternal(el.dataset.url),
+        'open-sync': () => PT.ui.openOverlay('syncOverlay'),
+        'open-collab': () => PT.ui.openOverlay('collabOverlay'),
+        'open-share': () => PT.cloud.openShareWithCurrentDocument(),
       };
       const target = e.target.closest('[data-action]');
       handlers[action]?.(target);
@@ -449,7 +444,6 @@
       { id: 'font', label: 'Browse Font Gallery', icon: 'fa-swatchbook', run: openFontPicker },
       { id: 'settings', label: 'Open Settings', icon: 'fa-gear', run: () => PT.ui.openOverlay('settingsOverlay') },
       { id: 'shortcuts', label: 'Keyboard Shortcuts', icon: 'fa-keyboard', run: () => PT.ui.openOverlay('shortcutsOverlay') },
-      { id: 'brainstorm', label: 'Open Brainstorm Assistant', icon: 'fa-wand-magic-sparkles', run: () => PT.ui.showPanel('brainstorm') },
       { id: 'sync', label: 'poagitSync (Cloud & Backups)', icon: 'fa-cloud', run: () => PT.ui.openOverlay('syncOverlay') },
       { id: 'collab', label: 'Live Collaboration', icon: 'fa-people-arrows', run: () => PT.ui.openOverlay('collabOverlay') },
       { id: 'share', label: 'Share to Feed', icon: 'fa-share-nodes', run: () => PT.cloud.openShareWithCurrentDocument() },
@@ -526,7 +520,7 @@
   }
 
   // ---------------------------------------------------------------------
-  // State subscriptions (tabs, stats, outline re-render on change)
+  // State subscriptions (tabs, stats re-render on change)
   // ---------------------------------------------------------------------
   function wireStateSubscriptions() {
     PT.state.on('document-created', () => PT.ui.renderTabs());
@@ -535,7 +529,6 @@
     PT.state.on('dirty-changed', () => PT.ui.renderTabs());
     PT.state.on('active-changed', () => PT.ui.renderTabs());
     PT.state.on('stats-changed', (stats) => PT.ui.renderStats(stats));
-    PT.state.on('outline-changed', (items) => PT.ui.renderOutline(items));
   }
 
   // ---------------------------------------------------------------------
@@ -586,7 +579,6 @@
       'open-find-replace': () => openFindReplace(true),
       'paste-plain': pastePlainText,
       'toggle-sidebar': () => PT.ui.toggleSidebar(),
-      'toggle-outline': () => PT.ui.showPanel('outline'),
       'toggle-stats': () => PT.ui.showPanel('stats'),
       'toggle-line-numbers': () => document.getElementById('setLineNumbers').click(),
       'toggle-focus-mode': toggleFocusMode,
@@ -596,7 +588,6 @@
       'open-theme-picker': openThemePicker,
       format: (cmd) => PT.editor.exec(cmd),
       'open-tool': (id) => PT.tools.open(id),
-      'toggle-brainstorm': () => PT.ui.showPanel('brainstorm'),
       'open-sync': () => PT.ui.openOverlay('syncOverlay'),
       'open-collab': () => PT.ui.openOverlay('collabOverlay'),
       'open-share': () => PT.cloud.openShareWithCurrentDocument(),
@@ -712,7 +703,7 @@
       if (e.key.toLowerCase() === 'f' && !e.shiftKey) { e.preventDefault(); openFindReplace(false); return; }
       if (e.key.toLowerCase() === 'h') { e.preventDefault(); openFindReplace(true); return; }
       if (e.key === '.') { e.preventDefault(); toggleFocusMode(); return; }
-      if (e.key === 'b' && !document.activeElement.closest('#richEditor, #plainEditor')) {
+      if (e.key.toLowerCase() === 'b' && !document.activeElement.closest('#richEditor, #plainEditor')) {
         e.preventDefault();
         PT.ui.toggleSidebar();
       }
