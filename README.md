@@ -12,7 +12,7 @@ poagitText is a text editor project started by me in 2024, starting out as a sin
 Please expect very frequent updates, especially after a new major release. This is to keep poagitText Pro stable and secure.
 
 # OS Support
-<b>macOS Intel: Native support (10.12 Sierra or higher)</b>
-<b>macOS Arm: Partially compatible using Rosetta 2 (macOS Big Sur or higher)</b>
-<b>Windows: Compatible (Windows 7 or later)</b>
-<b>Linux: Unknown (needs further testing)</b>
+<b>macOS Intel: Native support (10.12 Sierra or higher)</b>  
+<b>macOS Arm: Partially compatible using Rosetta 2 (macOS Big Sur or higher)</b>  
+<b>Windows: Compatible (Windows 7 or later)</b>  
+<b>Linux: Unknown (needs further testing)</b>  
