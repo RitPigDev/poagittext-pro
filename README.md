@@ -1,4 +1,5 @@
 # poagitText Pro
+<b>poagitText Pro is experiencing reduced development as I work on other personal projects.</b>
 A completely rewritten newly designed verison of poagitText designed for storywriting and more.
 
 (sorry if the first few releases are really buggy, I'm just learning JavaScript and don't have that much practice with it)
