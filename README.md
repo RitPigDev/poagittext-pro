@@ -1,5 +1,6 @@
-# poagitText Pro
 <b>poagitText Pro is experiencing reduced development as I work on other personal projects. Please stand by for more information at a later date.</b>  
+
+# poagitText Pro
   
 A completely rewritten newly designed verison of poagitText designed for storywriting and more.
 
